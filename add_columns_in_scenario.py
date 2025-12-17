@@ -2,9 +2,9 @@ import os
 import numpy as np
 import pandas as pd
 
-scenario_file = 'scenario_outputs/scenario 3 12052025.xlsx'
+scenario_file = 'scenario_outputs/scenario 3 12052025 2.xlsx'
 bidsheet_file = 'new/Bidsheet Master Consolidate Landed 12052025.csv'
-output_path = os.path.join('scenario_outputs', 'scenario 3 12052025 added columns.xlsx')
+output_path = os.path.join('scenario_outputs', 'scenario 3 12052025 added columns 2.xlsx')
 
 port_country_map = {
     'DALIAN': 'China', 
@@ -39,7 +39,10 @@ port_country_map = {
     'VIRGINIA': 'India'
 }
 
-# Read scenario and bidsheet files
+# Read first 13 rows to preserve them in output
+header_rows_df = pd.read_excel(scenario_file, nrows=13, header=None)
+
+# Read scenario and bidsheet files (skip first 13 rows for processing)
 scenario_df = pd.read_excel(scenario_file, skiprows=13)
 bidsheet_df = pd.read_csv(bidsheet_file)
 
@@ -370,4 +373,16 @@ scenario_df['Part #'] = scenario_df.apply(
     axis=1
 )
 
-scenario_df.to_excel(output_path, index=False)
+# Write output with first 13 rows preserved at the top
+with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+    # Write the processed data
+    scenario_df.to_excel(writer, sheet_name='Sheet1', index=False, startrow=13, header=True)
+    
+    # Get the workbook and worksheet to write header rows
+    workbook = writer.book
+    worksheet = writer.sheets['Sheet1']
+    
+    # Write the first 13 rows at the top
+    for row_idx, row_data in enumerate(header_rows_df.values, start=1):
+        for col_idx, value in enumerate(row_data, start=1):
+            worksheet.cell(row=row_idx, column=col_idx, value=value)

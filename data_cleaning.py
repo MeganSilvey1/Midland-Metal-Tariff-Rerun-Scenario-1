@@ -54,6 +54,8 @@ df_long["Metal Tariff"] = df_long.apply(get_tariff, axis=1)
 
 # Final sub dataframe
 sub_df = df_long[["ROW ID #", "Material", "country", "tariff_value", "Metal Tariff"]]
+sub_df["Material"] = sub_df["Material"].astype(str).str.strip()
+
 print(sub_df.head(20))
 
-sub_df.to_csv("tariff_part_level_cleaned.csv", index=False)
+sub_df.to_csv("tariff_part_level_cleaned 2.csv", index=False)
